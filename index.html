@@ -1337,29 +1337,35 @@
 
         // ============ PARTICIPANTES (SEM EMAIL) ============
         window.carregarParticipantes = function() {
-            const jogoId = document.getElementById('selectJogoParticipantes').value;
-            const div = document.getElementById('listaParticipantes');
-            
-            let lista = jogoId ? palpites.filter(p => p.jogoId === jogoId) : palpites;
-            
-            if (lista.length === 0) {
-                div.innerHTML = '<div class="sem-dados">📭 Nenhum palpite</div>';
-                return;
-            }
+    const jogoId = document.getElementById('selectJogoParticipantes').value;
+    const div = document.getElementById('listaParticipantes');
+    
+    let lista = jogoId ? palpites.filter(p => p.jogoId === jogoId) : palpites;
+    
+    if (lista.length === 0) {
+        div.innerHTML = '<div class="sem-dados">📭 Nenhum palpite</div>';
+        return;
+    }
 
-            // IMPORTANTE: Não exibe o email
-            div.innerHTML = lista.map(p => {
-                const jogo = jogos.find(j => j.id === p.jogoId);
-                const jogoInfo = jogo ? `${jogo.time1} x ${jogo.time2}` : 'Jogo não encontrado';
-                return `
-                    <div class="card">
-                        <strong>👤 ${p.nome}</strong>
-                        <p><strong>Jogo:</strong> ${jogoInfo}</p>
-                        <div class="placar">${p.placarTime1} x ${p.placarTime2}</div>
-                    </div>
-                `;
-            }).join('');
-        };
+    // MOSTRAR QUANTIDADE DE PARTICIPANTES
+    let html = `<div style="background: #002776; color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 16px;">
+        👥 Total de participantes: <strong>${lista.length}</strong>
+    </div>`;
+
+    html += lista.map(p => {
+        const jogo = jogos.find(j => j.id === p.jogoId);
+        const jogoInfo = jogo ? `${jogo.time1} x ${jogo.time2}` : 'Jogo não encontrado';
+        return `
+            <div class="card">
+                <strong>👤 ${p.nome}</strong>
+                <p><strong>Jogo:</strong> ${jogoInfo}</p>
+                <div class="placar">${p.placarTime1} x ${p.placarTime2}</div>
+            </div>
+        `;
+    }).join('');
+    
+    div.innerHTML = html;
+};
 
         // ============ ACERTOS (SEM EMAIL) ============
         window.carregarAcertos = function() {
