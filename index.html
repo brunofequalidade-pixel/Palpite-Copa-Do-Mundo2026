@@ -1340,14 +1340,19 @@
     const jogoId = document.getElementById('selectJogoParticipantes').value;
     const div = document.getElementById('listaParticipantes');
     
-    let lista = jogoId ? palpites.filter(p => p.jogoId === jogoId) : palpites;
+    // Só mostra se um jogo for selecionado
+    if (!jogoId) {
+        div.innerHTML = '<div class="sem-dados">📋 Selecione um jogo para ver os participantes</div>';
+        return;
+    }
+    
+    let lista = palpites.filter(p => p.jogoId === jogoId);
     
     if (lista.length === 0) {
-        div.innerHTML = '<div class="sem-dados">📭 Nenhum palpite</div>';
+        div.innerHTML = '<div class="sem-dados">📭 Nenhum palpite para este jogo</div>';
         return;
     }
 
-    // MOSTRAR QUANTIDADE DE PARTICIPANTES
     let html = `<div style="background: #002776; color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 16px;">
         👥 Total de participantes: <strong>${lista.length}</strong>
     </div>`;
@@ -1365,47 +1370,47 @@
     }).join('');
     
     div.innerHTML = html;
-};
+};;
 
         // ============ ACERTOS (SEM EMAIL) ============
-        window.carregarAcertos = function() {
-            const jogoId = document.getElementById('selectJogoAcertos').value;
-            const div = document.getElementById('listaAcertos');
-            
-            if (!jogoId) {
-                div.innerHTML = '<div class="sem-dados">Selecione um jogo</div>';
-                return;
-            }
+       window.carregarAcertos = function() {
+    const jogoId = document.getElementById('selectJogoAcertos').value;
+    const div = document.getElementById('listaAcertos');
+    
+    // Só mostra se um jogo for selecionado
+    if (!jogoId) {
+        div.innerHTML = '<div class="sem-dados">📋 Selecione um jogo para ver os acertos</div>';
+        return;
+    }
 
-            const jogo = jogos.find(j => j.id === jogoId);
-            if (!jogo || !jogo.resultado) {
-                div.innerHTML = '<div class="sem-dados">Sem resultado definido</div>';
-                return;
-            }
+    const jogo = jogos.find(j => j.id === jogoId);
+    if (!jogo || !jogo.resultado) {
+        div.innerHTML = '<div class="sem-dados">📭 Este jogo ainda não tem resultado definido</div>';
+        return;
+    }
 
-            const acertos = palpites.filter(p => 
-                p.jogoId === jogoId &&
-                p.placarTime1 === jogo.resultado.placarTime1 &&
-                p.placarTime2 === jogo.resultado.placarTime2
-            );
+    const acertos = palpites.filter(p => 
+        p.jogoId === jogoId &&
+        p.placarTime1 === jogo.resultado.placarTime1 &&
+        p.placarTime2 === jogo.resultado.placarTime2
+    );
 
-            // IMPORTANTE: Não exibe o email
-            div.innerHTML = `
-                <div style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
-                    <strong>Resultado Oficial:</strong> ${jogo.time1} ${jogo.resultado.placarTime1} x ${jogo.resultado.placarTime2} ${jogo.time2}
-                    <br><small>${acertos.length} acertaram</small>
+    div.innerHTML = `
+        <div style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
+            <strong>Resultado Oficial:</strong> ${jogo.time1} ${jogo.resultado.placarTime1} x ${jogo.resultado.placarTime2} ${jogo.time2}
+            <br><small>👥 ${acertos.length} acertaram</small>
+        </div>
+        ${acertos.length === 0 ? '<div class="sem-dados">😞 Ninguém acertou este jogo</div>' : 
+            acertos.map(p => `
+                <div class="card" style="border-left-color: #28a745;">
+                    <strong>🎉 ${p.nome}</strong>
+                    <div class="placar">${p.placarTime1} x ${p.placarTime2}</div>
+                    <span class="badge badge-ativo">✅ Acertou!</span>
                 </div>
-                ${acertos.length === 0 ? '<div class="sem-dados">😞 Ninguém acertou</div>' : 
-                    acertos.map(p => `
-                        <div class="card" style="border-left-color: #28a745;">
-                            <strong>🎉 ${p.nome}</strong>
-                            <div class="placar">${p.placarTime1} x ${p.placarTime2}</div>
-                            <span class="badge badge-ativo">✅ Acertou!</span>
-                        </div>
-                    `).join('')
-                }
-            `;
-        };
+            `).join('')
+        }
+    `;
+};
 
         // ============ ADMIN ============
         function carregarPainelAdmin() {
