@@ -1376,7 +1376,7 @@
             document.getElementById('formPalpiteContainer').style.display = 'none';
         });
 
-        // ============ PARTICIPANTES (com horário) ============
+        // ============ PARTICIPANTES (com horário e ordenado por data) ============
         window.carregarParticipantes = function() {
             const jogoId = document.getElementById('selectJogoParticipantes').value;
             const div = document.getElementById('listaParticipantes');
@@ -1392,6 +1392,9 @@
                 div.innerHTML = '<div class="sem-dados">📭 Nenhum palpite para este jogo</div>';
                 return;
             }
+
+            // Ordenar por data (mais antigo primeiro)
+            lista.sort((a, b) => new Date(a.data) - new Date(b.data));
 
             let html = `<div style="background: #002776; color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 16px;">
                 👥 Total de participantes: <strong>${lista.length}</strong>
@@ -1414,7 +1417,7 @@
             div.innerHTML = html;
         };
 
-        // ============ ACERTOS (com horário) ============
+        // ============ ACERTOS (com horário e ordenado por data) ============
         window.carregarAcertos = function() {
             const jogoId = document.getElementById('selectJogoAcertos').value;
             const div = document.getElementById('listaAcertos');
@@ -1430,11 +1433,14 @@
                 return;
             }
 
-            const acertos = palpites.filter(p => 
+            let acertos = palpites.filter(p => 
                 p.jogoId === jogoId &&
                 p.placarTime1 === jogo.resultado.placarTime1 &&
                 p.placarTime2 === jogo.resultado.placarTime2
             );
+
+            // Ordenar por data (mais antigo primeiro)
+            acertos.sort((a, b) => new Date(a.data) - new Date(b.data));
 
             div.innerHTML = `
                 <div style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
@@ -1467,7 +1473,6 @@
                 return;
             }
 
-            // Mapeamento de email para { nome, totalAcertos }
             const mapa = {};
 
             palpites.forEach(p => {
@@ -1478,16 +1483,11 @@
                     
                     if (!mapa[p.email]) {
                         mapa[p.email] = { nome: p.nome, totalAcertos: 0 };
-                    } else {
-                        // Atualiza o nome com o mais recente (data maior)
-                        if (p.data && (!mapa[p.email].ultimaData || p.data > mapa[p.email].ultimaData)) {
-                            mapa[p.email].nome = p.nome;
-                            mapa[p.email].ultimaData = p.data;
-                        }
                     }
                     mapa[p.email].totalAcertos++;
                     if (p.data) {
                         if (!mapa[p.email].ultimaData || p.data > mapa[p.email].ultimaData) {
+                            mapa[p.email].nome = p.nome;
                             mapa[p.email].ultimaData = p.data;
                         }
                     }
@@ -1500,7 +1500,6 @@
                 return;
             }
 
-            // Agrupar por totalAcertos
             const grupos = {};
             participantes.forEach(p => {
                 const chave = p.totalAcertos;
@@ -1508,12 +1507,11 @@
                 grupos[chave].push(p.nome);
             });
 
-            // Ordenar chaves (totalAcertos) decrescente
             const chavesOrdenadas = Object.keys(grupos).map(Number).sort((a, b) => b - a);
 
             let html = '';
             chavesOrdenadas.forEach((acertos, index) => {
-                const nomes = grupos[acertos].sort((a, b) => a.localeCompare(b)); // ordem alfabética
+                const nomes = grupos[acertos].sort((a, b) => a.localeCompare(b));
                 const posicao = index + 1;
                 const medalha = posicao === 1 ? '🥇' : (posicao === 2 ? '🥈' : (posicao === 3 ? '🥉' : `${posicao}º`));
                 html += `
@@ -1642,11 +1640,14 @@
                 return;
             }
 
-            const lista = palpites.filter(p => p.jogoId === jogoId);
+            let lista = palpites.filter(p => p.jogoId === jogoId);
             if (lista.length === 0) {
                 div.innerHTML = '<p style="text-align: center;">Nenhum participante</p>';
                 return;
             }
+
+            // Ordenar por data (mais antigo primeiro) – mesmo na área admin
+            lista.sort((a, b) => new Date(a.data) - new Date(b.data));
 
             div.innerHTML = lista.map(p => `
                 <div class="card">
